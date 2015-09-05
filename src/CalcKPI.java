@@ -12,7 +12,7 @@ public class CalcKPI {
     private double amperage;
     private double power;
     // Constants
-    private double gravity = 9.87;
+    private double gravity = 9.8066;
     private double z = 0.6;
     private double d = 0;
 
@@ -31,12 +31,16 @@ public class CalcKPI {
     }
 
     private double calcDivisor() {
-        double temp1 = density * (consumption / 3600);
-        return temp1 * ((pressureOutcome - pressureIncome) / (consumption * gravity));
+        return     density
+                * (consumption / 3600)
+                * ((pressureOutcome - pressureIncome) / (consumption * gravity)
+                * 1000000
+                )
+                ;
     }
 
     private double calcSyncDivider() {
-        return 102 * (power * 200 * 100 * 0.001 - (1) + );
+        return 102 * (power - (88.3) + 3 * Math.pow(amperage, 2) * 0.335 * 0.001 + Math.pow(amperage, 2) * 0 * 0.001);
     }
 
     private double calcASyncDivider() {
@@ -44,10 +48,12 @@ public class CalcKPI {
     }
 
     private double calcAggregateDivider() {
-        return 1;
+        return 102 * power;
     }
 
     public double calcSync() {
+        System.out.println(calcDivisor());
+        System.out.println(calcSyncDivider());
         return calcDivisor() / calcSyncDivider();
     }
 

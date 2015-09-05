@@ -1,5 +1,5 @@
 import javax.swing.*;
-import java.math.BigDecimal;
+import java.sql.Struct;
 
 /**
  * Created by gdr on 9/5/15.
@@ -12,10 +12,11 @@ public class Main extends JPanel {
     private JTextField densityField;
     private JTextField amperageField;
     private JTextField powerField;
-    private JTextField resultField;
+    private JTextField syncResultField;
     private JButton resetButton;
     private JButton calcButton;
     private JComboBox<String> typeComboBox;
+    private JTextField aggregateReusltField;
 
     public Main() {
         resetButton.addActionListener(e -> {
@@ -25,6 +26,7 @@ public class Main extends JPanel {
             consumptionField.setText("");
             amperageField.setText("");
             powerField.setText("");
+            syncResultField.setText("");
         });
 
         calcButton.addActionListener(e -> {
@@ -35,29 +37,29 @@ public class Main extends JPanel {
             double amperage;
             double power;
             try {
-                pressureIncome  = Double.parseDouble(pressureIncomeField.getText());
+                pressureIncome = Double.parseDouble(pressureIncomeField.getText());
                 pressureOutcome = Double.parseDouble(pressureOutcomeField.getText());
-                density         = Double.parseDouble(densityField.getText());
-                consumption     = Double.parseDouble(consumptionField.getText());
-                amperage        = Double.parseDouble(amperageField.getText());
-                power           = Double.parseDouble(powerField.getText());
+                density = Double.parseDouble(densityField.getText());
+                consumption = Double.parseDouble(consumptionField.getText());
+                amperage = Double.parseDouble(amperageField.getText());
+                power = Double.parseDouble(powerField.getText());
             } catch (NumberFormatException exception) {
-                resultField.setText("Ошибка ввода данных");
+                syncResultField.setText("Ошибка ввода данных");
                 return;
             }
-            resultField.setText(
-                    String.valueOf(
-                            Math.round(
-                                    new CalcKPI(
-                                        pressureIncome,
-                                        pressureOutcome,
-                                        density,
-                                        consumption,
-                                        amperage,
-                                        power
-                                    ).calcSync() * 10000
-                            ) / 10000
-                    )
+            CalcKPI calcKPI = new CalcKPI(
+                    pressureIncome,
+                    pressureOutcome,
+                    density,
+                    consumption,
+                    amperage,
+                    power
+            );
+            syncResultField.setText(
+                    String.valueOf(calcKPI.calcSync() * 100)
+            );
+            aggregateReusltField.setText(
+                    String.valueOf(calcKPI.calcAggregate() * 100)
             );
         });
         typeComboBox.addItem("Синхронный");
