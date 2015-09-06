@@ -17,6 +17,12 @@ public class Main extends JPanel {
     private JButton calcButton;
     private JComboBox<String> typeComboBox;
     private JTextField aggregateReusltField;
+    private JPanel Bottom;
+    private JPanel Results;
+    private JPanel Buttons;
+    private JPanel Top;
+    private JPanel Inputs;
+    private JPanel Labels;
 
     public Main() {
         resetButton.addActionListener(e -> {
@@ -62,9 +68,6 @@ public class Main extends JPanel {
                     String.valueOf(calcKPI.calcAggregate() * 100)
             );
         });
-        typeComboBox.addItem("Синхронный");
-        typeComboBox.addItem("Асинхронный");
-        typeComboBox.addItem("Агрегированный");
     }
 
     public static void main(String[] args) {
