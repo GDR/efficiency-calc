@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.sql.Struct;
 
 /**
  * Created by gdr on 9/5/15.
@@ -23,6 +22,8 @@ public class Main extends JPanel {
     private JPanel Top;
     private JPanel Inputs;
     private JPanel Labels;
+    private JPanel Results2;
+    private JTextField pumpResultFIeld;
 
     public Main() {
         resetButton.addActionListener(e -> {
@@ -33,6 +34,7 @@ public class Main extends JPanel {
             amperageField.setText("");
             powerField.setText("");
             syncResultField.setText("");
+            aggregateReusltField.setText("");
         });
 
         calcButton.addActionListener(e -> {
@@ -53,11 +55,11 @@ public class Main extends JPanel {
                 syncResultField.setText("Ошибка ввода данных");
                 return;
             }
-            CalcKPI calcKPI = new CalcKPI(
+            CalcEfficiency calcKPI = new CalcEfficiency(
                     pressureIncome,
                     pressureOutcome,
-                    density,
                     consumption,
+                    density,
                     amperage,
                     power
             );
@@ -66,6 +68,9 @@ public class Main extends JPanel {
             );
             aggregateReusltField.setText(
                     String.valueOf(calcKPI.calcAggregate() * 100)
+            );
+            pumpResultFIeld.setText(
+                    String.valueOf(calcKPI.calcEfficiencyOfPump() * 100)
             );
         });
     }
