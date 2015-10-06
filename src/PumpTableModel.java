@@ -1,13 +1,14 @@
+import data.Pump;
+import data.PumpList;
+
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 class PumpTableModel implements TableModel {
-    List<Pump> list;
-    List<Pump> diff;
+    PumpList pumpSet;
     List<Pump> deviation;
     String[] columnNames = {"№ п/п", "Pвх, МПа", "Pвых, МПа", "Q, м3/ч", "ρ, кг/м3", "I, А", "N, кВт"};
     Set<TableModelListener> listenerSet = new HashSet<>();
@@ -16,7 +17,7 @@ class PumpTableModel implements TableModel {
 
     @Override
     public int getRowCount() {
-        return list.size();
+        return pumpSet.size();
     }
 
     @Override
@@ -41,7 +42,7 @@ class PumpTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Pump pump = list.get(rowIndex);
+        Pump pump = pumpSet.get(rowIndex);
         switch (columnIndex) {
             case 0: return rowIndex + 1;
             case 1: return pump.getPressureIncome();
@@ -70,72 +71,36 @@ class PumpTableModel implements TableModel {
     }
 
     public PumpTableModel() {
-        list = new ArrayList<>();
+        pumpSet = new PumpList();
     }
 
-    private void calcAverage() {
-        average = new Pump();
-        for (Pump pump : list) {
-            average.setPressureIncome(pleaseRoundIt(average.getPressureIncome() + pump.getPressureIncome()));
-            average.setPressureOutcome(pleaseRoundIt(average.getPressureOutcome() + pump.getPressureOutcome()));
-            average.setConsumption(pleaseRoundIt(average.getConsumption() + pump.getConsumption()));
-            average.setDensity(pleaseRoundIt(average.getDensity() + pump.getDensity()));
-            average.setAmperage(pleaseRoundIt(average.getAmperage() + pump.getAmperage()));
-            average.setPower(pleaseRoundIt(average.getPower() + pump.getPower()));
-        }
-        average.setPressureIncome(pleaseRoundIt(average.getPressureIncome() / list.size()));
-        average.setPressureOutcome(pleaseRoundIt(average.getPressureOutcome() / list.size()));
-        average.setAmperage(pleaseRoundIt(average.getAmperage() / list.size()));
-        average.setPower(pleaseRoundIt(average.getPower() / list.size()));
-        average.setDensity(pleaseRoundIt(average.getDensity() / list.size()));
-        average.setConsumption(pleaseRoundIt(average.getConsumption() / list.size()));
 
-        diff = new ArrayList<>();
-
-        for (Pump pump: list) {
-            Pump diffPump = new Pump();
-            diffPump.setPressureIncome(pleaseRoundIt(average.getPressureIncome() - pump.getPressureIncome()));
-            diffPump.setPressureOutcome(pleaseRoundIt(average.getPressureOutcome() - pump.getPressureOutcome()));
-            diffPump.setConsumption(pleaseRoundIt(average.getConsumption() - pump.getConsumption()));
-            diffPump.setDensity(pleaseRoundIt(average.getDensity() - pump.getDensity()));
-            diffPump.setAmperage(pleaseRoundIt(average.getAmperage() - pump.getAmperage()));
-            diffPump.setPower(pleaseRoundIt(average.getPower() - pump.getPower()));
-            diff.add(diffPump);
-        }
-        calcError = new Pump();
-        for (Pump pump: diff) {
-            calcError.addPressureIncome(pow(pump.getPressureIncome()));
-            calcError.addPressureOutcome(pow(pump.getPressureOutcome()));
-            calcError.addConsumption(pow(pump.getConsumption()));
-            calcError.addDensity(pow(pump.getDensity()));
-            calcError.addPower(pow(pump.getPower()));
-            calcError.addAmperage(pow(pump.getAmperage()));
-            System.out.printf("%f %f\n", pow(pump.getPressureIncome()), calcError.getPressureIncome());
-        }
-        System.out.println("###" + calcError.getPressureIncome());
-        System.out.printf("###%f\n", calcError.getPressureIncome());
-        calcError.setPressureIncome(pleaseRoundIt(Math.sqrt(calcError.getPressureIncome() / (diff.size() - 1))));
-        calcError.setPressureOutcome(pleaseRoundIt(Math.sqrt(calcError.getPressureOutcome() / (diff.size() - 1))));
-        calcError.setAmperage(pleaseRoundIt(Math.sqrt(calcError.getAmperage() / (diff.size() - 1))));
-        calcError.setConsumption(pleaseRoundIt(Math.sqrt(calcError.getConsumption() / (diff.size() - 1))));
-        calcError.setPower(pleaseRoundIt(Math.sqrt(calcError.getPower() / (diff.size() - 1))));
-        calcError.setDensity(pleaseRoundIt(Math.sqrt(calcError.getDensity() / (diff.size() - 1))));
-
-    }
 
     public void addPump(Pump pump) {
-        list.add(pump);
-        calcAverage();
-        System.out.println(average);
-        System.out.println("Diffs:\n" + diff);
-        System.out.println(calcError);
+        pumpSet.addPump(pump);
+        pumpSet.calcAverage();
+        System.out.println(pumpSet.getAverage());
+        System.out.println("Diffs:\n" + pumpSet.getDiff());
+        System.out.println(pumpSet.getCalcError());
     }
 
-    private double pleaseRoundIt(double a) {
-        return Math.floor(a * 10000000) / 10000000;
+    public double getAverageEfficiency() {
+        return pumpSet.getEfficiency();
     }
 
-    private double pow(double a) {
-        return a * a;
+    private Pump getAverage() {
+        return pumpSet.getAverage();
+    }
+
+    public double getSync() {
+        return getAverage().calcSync();
+    }
+
+    public double getAggregate() {
+        return getAverage().calcAggregate();
+    }
+
+    public double getEfficiencyOfPump() {
+        return getAverage().calcEfficiencyOfPump();
     }
 }

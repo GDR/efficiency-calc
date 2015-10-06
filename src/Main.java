@@ -1,8 +1,6 @@
-import sun.net.idn.Punycode;
+import data.Pump;
 
 import javax.swing.*;
-import javax.swing.table.TableColumn;
-import java.util.IllegalFormatException;
 
 /**
  * Created by gdr on 9/5/15.
@@ -31,6 +29,8 @@ public class Main extends JPanel {
     private JPanel Table;
     private JTable table1;
     private JButton addButton;
+    private JTextField pumpAverageField;
+    PumpTableModel tableModel;
 
     public Main() {
         resetButton.addActionListener(e -> {
@@ -49,21 +49,27 @@ public class Main extends JPanel {
 
             Pump calcKPI = null;
             try {
-                calcKPI = generatePump();
+//                calcKPI = generatePump();
+
             } catch (Exception ignored) {
                 return;
+            } finally {
+                syncResultField.setText(
+                        String.valueOf(Math.floor(tableModel.getSync() * 10000) / 100)
+                );
+                aggregateReusltField.setText(
+                        String.valueOf(Math.floor(tableModel.getAggregate() * 10000) / 100)
+                );
+                pumpResultFIeld.setText(
+                        String.valueOf(Math.floor(tableModel.getEfficiencyOfPump() * 100) / 100)
+                );
+                pumpAverageField.setText(
+                        String.valueOf(Math.floor(tableModel.getAverageEfficiency() * 10000) / 100)
+                );
             }
-            syncResultField.setText(
-                    String.valueOf(Math.floor(calcKPI.calcSync() * 10000) / 100)
-            );
-            aggregateReusltField.setText(
-                    String.valueOf(Math.floor(calcKPI.calcAggregate() * 10000) / 100)
-            );
-            pumpResultFIeld.setText(
-                    String.valueOf(Math.floor(calcKPI.calcEfficiencyOfPump() * 10000) / 100)
-            );
         });
-        PumpTableModel tableModel = new PumpTableModel();
+        tableModel = new PumpTableModel();
+        final PumpTableModel finalTableModel = tableModel;
         addButton.addActionListener(e -> {
             Pump pump = null;
             try {
@@ -71,9 +77,15 @@ public class Main extends JPanel {
             } catch (Exception e1) {
                 return;
             }
-            tableModel.addPump(pump);
+            finalTableModel.addPump(pump);
             table1.updateUI();
         });
+
+        tableModel = addToTable(tableModel);
+        table1.setModel(tableModel);
+    }
+
+    private PumpTableModel addToTable(PumpTableModel tableModel) {
         tableModel.addPump(new Pump(0.506, 2.27, 6912, 841.16, 1, 4148.62));
         tableModel.addPump(new Pump(0.508, 2.27, 6912, 841.14, 1, 4139.51));
         tableModel.addPump(new Pump(0.508, 2.273, 6912, 841.19, 1, 4145.12));
@@ -84,7 +96,7 @@ public class Main extends JPanel {
         tableModel.addPump(new Pump(0.505, 2.268, 6912, 841.1, 1, 4150.02));
         tableModel.addPump(new Pump(0.505, 2.27, 6912, 841.16, 1, 4168.92));
         tableModel.addPump(new Pump(0.505, 2.273, 6912, 841.14, 1, 4165.42));
-        table1.setModel(tableModel);
+        return tableModel;
     }
 
     public static void main(String[] args) {
